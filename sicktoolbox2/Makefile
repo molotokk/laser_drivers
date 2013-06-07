@@ -7,15 +7,16 @@ UNPACK_CMD = tar xzf
 #TARBALL_PATCH = stdlib_include.patch
 
 include $(shell rospack find mk)/download_unpack_build.mk
+#include $(shell rospack find mk)/git_checkout.mk
 
 # override the extraction routing in download_unpack_build.mk
 $(SOURCE_DIR)/unpacked: $(TARBALL_PATCH)
 	-mkdir -p build
 ifneq ($(strip $(MD5SUM_FILE)),)
 	if [ ! -f $(MD5SUM_FILE) ]; then echo "Error: Couldn't find md5sum file $(MD5SUM_FILE)" && false; fi
-	`rospack find rosbuild`/bin/download_checkmd5.py $(TARBALL_URL) $(TARBALL) `awk {'print $$1'} $(MD5SUM_FILE)`
+	$(ROS_ROOT)/core/rosbuild/bin/download_checkmd5.py $(TARBALL_URL) $(TARBALL) `awk {'print $$1'} $(MD5SUM_FILE)`
 else
-	`rospack find rosbuild`/bin/download_checkmd5.py $(TARBALL_URL) $(TARBALL)
+	$(ROS_ROOT)/core/rosbuild/bin/download_checkmd5.py $(TARBALL_URL) $(TARBALL)
 endif
 	touch -c $(TARBALL)
 	rm -rf $(SOURCE_DIR) $(INITIAL_DIR)

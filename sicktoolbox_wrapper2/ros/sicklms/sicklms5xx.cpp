@@ -78,8 +78,8 @@ void publish_scan(ros::Publisher *pub, uint32_t *range_values,
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "sicklms5xx");
-	string port;
-	int baud;
+	string ip_address;
+	int tcp_port;
 	bool inverted = false;
 	int angle;
 	double resolution;
@@ -92,8 +92,8 @@ int main(int argc, char **argv)
 	ros::NodeHandle nh;
 	ros::NodeHandle nh_ns("~");
 	ros::Publisher scan_pub = nh.advertise<sensor_msgs::LaserScan> ("scan", 1);
-	//nh_ns.param("port", port, string("/dev/lms200"));
-	//nh_ns.param("baud", baud, 38400);
+	nh_ns.param("ip_address", ip_address, string("141.19.91.195"));
+	nh_ns.param("tcp_port", tcp_port, 2112);
 	//nh_ns.param("inverted", inverted, false);
 	nh_ns.param("angle", angle, 0);
 	nh_ns.param("resolution", resolution, 0.0);
@@ -103,15 +103,16 @@ int main(int argc, char **argv)
 	uint32_t intensity_values[SickLMS5xx::SICK_LMS_5XX_MAX_NUM_MEASUREMENTS] = { 0 };
 	uint32_t n_range_values = 0;
 	uint32_t n_intensity_values = 0;
-	SickLMS5xx sick_lms("192.168.0.1");
+	SickLMS5xx sick_lms(ip_address, tcp_port);
 	double scale = 0;
 	double angle_offset;
 	uint32_t partial_scan_index;
 
 	try {
 		sick_lms.Initialize();
-		sick_lms.SetSickScanFreqAndRes(SickLMS5xx::SICK_LMS_5XX_SCAN_FREQ_25,
+		/*sick_lms.SetSickScanFreqAndRes(SickLMS5xx::SICK_LMS_5XX_SCAN_FREQ_25,
 		                                       SickLMS5xx::SICK_LMS_5XX_SCAN_RES_17);
+        */
 		/*sick_lms.SetSickScanFreqAndRes(SickLMS5xx::SICK_LMS_5XX_SCAN_FREQ_25,
 		                               SickLMS5xx::SICK_LMS_5XX_SCAN_RES_25);*/
 		//sick_lms.SetSickEchoFilter(SickLMS5xx::SICK_LMS_5XX_ECHO_FILTER_ALL_ECHOES);
@@ -158,7 +159,7 @@ int main(int argc, char **argv)
 		// show up as two seperate LaserScan messages.
 		angle_increment = sick_lms.IsSickLMS5xxFast() ? 0.5 : 1.0;
 		angle_offset = (180.0 - angle) / 2; */
-
+        ROS_INFO("Device initialized.");
 
 	} catch(...) {
 		ROS_ERROR("Initialize failed!");
